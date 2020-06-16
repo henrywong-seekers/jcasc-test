@@ -1,40 +1,57 @@
 jenkins:
   authorizationStrategy:
-    projectMatrix:
-      permissions:
-      - "Agent/Build:authenticated"
-      - "Agent/Configure:authenticated"
-      - "Agent/Connect:authenticated"
-      - "Agent/Create:authenticated"
-      - "Agent/Delete:authenticated"
-      - "Agent/Disconnect:authenticated"
-      - "Credentials/Create:authenticated"
-      - "Credentials/Delete:authenticated"
-      - "Credentials/ManageDomains:authenticated"
-      - "Credentials/Update:authenticated"
-      - "Credentials/View:authenticated"
-      - "Job/Build:authenticated"
-      - "Job/Cancel:authenticated"
-      - "Job/Configure:authenticated"
-      - "Job/Create:authenticated"
-      - "Job/Delete:authenticated"
-      - "Job/Discover:authenticated"
-      - "Job/Move:authenticated"
-      - "Job/Read:authenticated"
-      - "Job/Workspace:authenticated"
-      - "Overall/Read:anonymous"
-      - "Overall/Administer:authenticated"
-      - "Overall/Read:authenticated"
-      - "Run/Delete:authenticated"
-      - "Run/Replay:authenticated"
-      - "Run/Update:authenticated"
-      - "View/Configure:authenticated"
-      - "View/Create:authenticated"
-      - "View/Delete:authenticated"
-      - "View/Read:authenticated"
+    roleBased:
+      roles:
+        global:
+          - name: "admin"
+            description: "Jenkins administrators"
+            permissions:
+              - "Overall/Administer"
+            assignments:
+              - "admin"
+          - name: "readonly"
+            description: "Read-only users"
+            permissions:
+              - "Overall/Read"
+              - "Job/Read"
+            assignments:
+              - "authenticated"
+        items:
+          - name: "FolderA"
+            description: "Jobs in Folder A, but not the folder itself"
+            pattern: "A/.*"
+            permissions:
+              - "Job/Configure"
+              - "Job/Build"
+              - "Job/Delete"
+            assignments:
+              - "user1"
+              - "user2"
+          - name: "FolderB"
+            description: "Jobs in Folder B, but not the folder itself"
+            pattern: "B.*"
+            permissions:
+              - "Job/Configure"
+              - "Job/Build"
+            assignments:
+              - "user2"
+        agents:
+          - name: "Agent1"
+            description: "Agent 1"
+            pattern: "agent1"
+            permissions:
+              - "Agent/Build"
+            assignments:
+              - "user1"
+
   securityRealm:
     local:
-      allowsSignup: true
+      allowsSignup: false
       users:
-        - id: whs
-          password: password
+        - id: "admin"
+          password: "1234"
+        - id: "user1"
+          password: ""
+        - id: "user_hashed"
+          # password is password
+          password: "#jbcrypt:$2a$10$3bnAsorIxhl9kTYvNHa2hOJQwPzwT4bv9Vs.9KdXkh9ySANjJKm5u"
